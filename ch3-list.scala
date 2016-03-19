@@ -69,6 +69,8 @@ object MyList {
 
 
     // Second exerceise set: Higher order functions
+
+    // foldRight((1, 2, 3, 4), 0)(+) = (1 + (2 + (3 + (4 + 0))))
     def foldRight[A, B](as: MyList[A], z: B)(f: (A, B) => B): B = as match {
         case Nil => z
         case Cons(x, xs) => f(x, foldRight(xs, z)(f))
@@ -79,6 +81,38 @@ object MyList {
         MyList.foldRight(as, 0)((a, b) => b + 1)
     }
 
+    // Ex 3.10
+    // foldRight is not tail recursive.  This tail recursive version is foldLeft.
+    // foldLeft((1, 2), 0)(+)
+    //     = foldLeft((2,), (0 + 1))(+) 
+    //     = foldLeft((,), ((0 + 1) + 2))(+)
+    //     = ((0 + 1) + 2)
+    def foldLeft[A, B](as: MyList[A], z: B)(f: (B, A) => B): B = as match {
+        case Nil => z
+        case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
+    }
+
+    // Ex 3.12
+    // The idea in the accumulator implementation is to pass elements from the
+    // arugment list onto the LHS of the accumulator.
+    def reverse[A](as: MyList[A]): MyList[A] = {
+        def loop[A](as: MyList[A], acc: MyList[A]): MyList[A] = as match {
+            case Nil => acc
+            case Cons(x, xs) => loop(xs, Cons(x, acc))  
+        }
+        loop(as, MyList())
+    }
+    // This is essentially the same as the previous implementation, as the
+    // following expansion shows
+    //   reverseFoldLeft((1, 2, 3))
+    //     = foldLeft((1, 2, 3), (,))(...)
+    //     = foldLeft((2, 3), Cons(1, (,))(...)
+    //     = foldLeft((3,), Cons(2, Cons(1, (,))))(...)
+    //     = foldLeft((,), Cons(3, Cons(2, Cons(1, (,)))))(...)
+    ///    = Cons(3, Cons(2, Cons(1, (,))))
+    def reverseFoldLeft[A](as: MyList[A]): MyList[A] = {
+        MyList.foldLeft(as, MyList[A]())((l, a) => Cons(a, l))
+    }
 
 }
 
@@ -110,5 +144,13 @@ val x = MyList(1, 2, 3, 4)
 //println(MyList.foldRight(MyList(1, 2, 3, 4), Nil:MyList[Int])(Cons(_, _)))
 
 // Ex 3.9
-println(MyList.length(MyList()))
-println(MyList.length(MyList(1, 2, 3, 4)))
+// println(MyList.length(MyList()))
+// println(MyList.length(MyList(1, 2, 3, 4)))
+
+// Ex 3.10
+// println(MyList.foldLeft(MyList(1, 2, 3, 4), 0)(_ + _))
+// println(MyList.foldLeft(MyList(1, 2, 3, 4), 1)(_ * _))
+
+// Ex 3.12
+println(MyList.reverse(MyList(1, 2, 3, 4)))
+println(MyList.reverseFoldLeft(MyList(1, 2, 3, 4)))
