@@ -3,6 +3,16 @@ case object Nil extends MyList[Nothing]
 case class Cons[+A](head: A, tail: MyList[A]) extends MyList[A]
 
 object MyList {
+
+    def sum(ints: MyList[Int]): Int = ints match {
+       case Nil => 0
+       case Cons(x, xs) => x + sum(xs)
+    }
+
+    def product(ds: MyList[Double]): Double = ds match {
+        case Nil => 1
+        case Cons(x, xs) => x * product(xs)
+    }
    
     // apply is a sepcial function that allows us to use the datatype name as
     // a constructor.  i.e. MyList(1, 2, 3, 4)
@@ -11,11 +21,15 @@ object MyList {
         else Cons(as.head, apply(as.tail: _*))
     }
 
+    // This throws a match not exahutive warning, which I don't know how to
+    // deal with quite yet.
     def head[A](as: MyList[A]): A = as match {
         // case Nil => Nothing // Should really be an error 
         case Cons(x, xs) => x
     }
 
+
+    // First exerceise set: General pattern matching
     // Ex 3.2
     def tail[A](as: MyList[A]): MyList[A] = as match {
         case Nil => Nil  // Should probably be an error
@@ -53,15 +67,18 @@ object MyList {
         case Cons(x, xs) => Cons(x, MyList.init(xs))
     }
 
-    def sum(ints: MyList[Int]): Int = ints match {
-       case Nil => 0
-       case Cons(x, xs) => x + sum(xs)
+
+    // Second exerceise set: Higher order functions
+    def foldRight[A, B](as: MyList[A], z: B)(f: (A, B) => B): B = as match {
+        case Nil => z
+        case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+    }
+    
+    // Ex 3.9
+    def length[A](as: MyList[A]): Int = {
+        MyList.foldRight(as, 0)((a, b) => b + 1)
     }
 
-    def product(ds: MyList[Double]): Double = ds match {
-        case Nil => 1
-        case Cons(x, xs) => x * product(xs)
-    }
 
 }
 
@@ -87,4 +104,11 @@ val x = MyList(1, 2, 3, 4)
 // println(MyList.dropWhile(x, (t: Int) => t <= 2))
 
 // Ex 3.6
-println(MyList.init(x))
+// println(MyList.init(x))
+
+// Ex 3.8: Using foldRight to build up the origional list
+//println(MyList.foldRight(MyList(1, 2, 3, 4), Nil:MyList[Int])(Cons(_, _)))
+
+// Ex 3.9
+println(MyList.length(MyList()))
+println(MyList.length(MyList(1, 2, 3, 4)))
