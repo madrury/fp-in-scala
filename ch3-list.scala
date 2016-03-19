@@ -12,7 +12,7 @@ object MyList {
     }
 
     def head[A](as: MyList[A]): A = as match {
-        // case Nil => Unit // Should really be an error 
+        // case Nil => Nothing // Should really be an error 
         case Cons(x, xs) => x
     }
 
@@ -44,6 +44,13 @@ object MyList {
             else loop(tail(as))
         }
         loop(as)
+    }
+
+    // def 3.6
+    def init[A](as: MyList[A]): MyList[A] = as match {
+        case Nil => Nil
+        case Cons(x, Nil) => Nil
+        case Cons(x, xs) => Cons(x, MyList.init(xs))
     }
 
     def sum(ints: MyList[Int]): Int = ints match {
@@ -78,3 +85,6 @@ val x = MyList(1, 2, 3, 4)
 
 // Ex 3.5
 // println(MyList.dropWhile(x, (t: Int) => t <= 2))
+
+// Ex 3.6
+println(MyList.init(x))
