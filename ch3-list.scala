@@ -11,6 +11,11 @@ object MyList {
         else Cons(as.head, apply(as.tail: _*))
     }
 
+    def head[A](as: MyList[A]): A = as match {
+        // case Nil => Unit // Should really be an error 
+        case Cons(x, xs) => x
+    }
+
     // Ex 3.2
     def tail[A](as: MyList[A]): MyList[A] = as match {
         case Nil => Nil  // Should probably be an error
@@ -30,6 +35,15 @@ object MyList {
             else loop(MyList.tail(as), n - 1) 
         }
         loop(as, n)
+    }
+
+    // Ex 3.5
+    def dropWhile[A](as: MyList[A], p: A => Boolean): MyList[A] = {
+        def loop(as: MyList[A]): MyList[A] = {
+            if (!p(MyList.head(as))) as
+            else loop(tail(as))
+        }
+        loop(as)
     }
 
     def sum(ints: MyList[Int]): Int = ints match {
@@ -58,6 +72,9 @@ val x = MyList(1, 2, 3, 4)
 // println(MyList.setHead(x, 5))
 
 // Ex 3.4
-println(MyList.drop(x, 0))
-println(MyList.drop(x, 1))
-println(MyList.drop(x, 2))
+//println(MyList.drop(x, 0))
+//println(MyList.drop(x, 1))
+//println(MyList.drop(x, 2))
+
+// Ex 3.5
+// println(MyList.dropWhile(x, (t: Int) => t <= 2))
