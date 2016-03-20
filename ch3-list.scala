@@ -134,6 +134,28 @@ object MyList {
         MyList.foldRight(as, Nil:MyList[B])((a, l) => Cons(f(a), l))
     }
         
+    // Ex 2.19
+    def filter[A](as: MyList[A], p: A => Boolean): MyList[A] = as match {
+        case Nil => Nil
+        case Cons(x, xs) => if (p(x)) Cons(x, filter(xs, p)) else filter(xs, p)
+    }
+
+    // Ex 2.20
+    def flatMap[A, B](as: MyList[A], f: A => MyList[B]): MyList[B] = {
+        MyList.foldRight(as, Nil:MyList[B])(
+            (a: A, bs: MyList[B]) => MyList.append(f(a), bs)
+        )
+    }
+    // A possibly more transparant way is to map and then coalesce
+    def flatMap2[A, B](as: MyList[A], f: A => MyList[B]): MyList[B] = {
+        MyList.coalesce(MyList.map(as, f))
+    }
+
+    // Ex 2.21
+    def filterWithFlatMap[A](as: MyList[A], p: A => Boolean): MyList[A] = {
+        MyList.flatMap(as, (a: A) => if (p(a)) MyList(a) else Nil:MyList[A])        
+    }
+
 
 }
 
@@ -188,5 +210,16 @@ val x = MyList(1, 2, 3, 4)
 // println(MyList.coalesce(MyList(MyList(1, 2), MyList(3, 4), MyList(5, 6))))
 
 // Ex 3.18
-println(MyList.map(MyList(1, 2, 3, 4), (a: Int) => a + 1))
-println(MyList.map(MyList(1, 2, 3, 4), (a: Int) => 0))
+// println(MyList.map(MyList(1, 2, 3, 4), (a: Int) => a + 1))
+// println(MyList.map(MyList(1, 2, 3, 4), (a: Int) => 0))
+
+// Ex 3.19
+// println(MyList.filter(x, (x: Int) => x % 2 == 0))
+// println(MyList.filter(x, (x: Int) => x % 2 == 1))
+
+// Ex 3.20
+// println(MyList.flatMap(x, (x: Int) => MyList(x, x)))
+// println(MyList.flatMap2(x, (x: Int) => MyList(x, x)))
+
+// Ex 3.21
+//  println(MyList.filterWithFlatMap(x, (x: Int) => x % 2 == 0))
