@@ -24,7 +24,7 @@ object MyList {
     // This throws a match not exahutive warning, which I don't know how to
     // deal with quite yet.
     def head[A](as: MyList[A]): A = as match {
-        // case Nil => Nothing // Should really be an error 
+        case Nil => sys.error("Attempt to take head of empty list")
         case Cons(x, xs) => x
     }
 
@@ -134,13 +134,13 @@ object MyList {
         MyList.foldRight(as, Nil:MyList[B])((a, l) => Cons(f(a), l))
     }
         
-    // Ex 2.19
+    // Ex 3.19
     def filter[A](as: MyList[A], p: A => Boolean): MyList[A] = as match {
         case Nil => Nil
         case Cons(x, xs) => if (p(x)) Cons(x, filter(xs, p)) else filter(xs, p)
     }
 
-    // Ex 2.20
+    // Ex 3.20
     def flatMap[A, B](as: MyList[A], f: A => MyList[B]): MyList[B] = {
         MyList.foldRight(as, Nil:MyList[B])(
             (a: A, bs: MyList[B]) => MyList.append(f(a), bs)
@@ -151,11 +151,25 @@ object MyList {
         MyList.coalesce(MyList.map(as, f))
     }
 
-    // Ex 2.21
+    // Ex 3.21
     def filterWithFlatMap[A](as: MyList[A], p: A => Boolean): MyList[A] = {
         MyList.flatMap(as, (a: A) => if (p(a)) MyList(a) else Nil:MyList[A])        
     }
 
+    // Ex 3.22, 3.33
+    // We don't have a mixed type collection yet, so zipping together two
+    // List's of like data-type will have to do for now.
+    def zip[A](a1s: MyList[A], a2s: MyList[A]): MyList[MyList[A]] = (a1s, a2s) match {
+        case (Nil, _) => Nil
+        case (_, Nil) => Nil
+        case (Cons(x, xs), Cons(y, ys)) => Cons(MyList(x, y), MyList.zip(xs, ys))
+    }
+    def zipWith[A, B](a1s: MyList[A], a2s: MyList[A], f: (A, A) => B): MyList[B] = {
+        MyList.map(MyList.zip(a1s, a2s), (as: MyList[A]) => as match {
+            case Cons(a1, Cons(a2, Nil)) => f(a1, a2)
+            case _ => sys.error("Non ordered pair found.")
+        })
+    }
 
 }
 
@@ -223,3 +237,6 @@ val x = MyList(1, 2, 3, 4)
 
 // Ex 3.21
 //  println(MyList.filterWithFlatMap(x, (x: Int) => x % 2 == 0))
+
+// Ex 3.22
+println(MyList.zipWith(MyList(1, 2, 3), MyList(1, 2, 3), (x: Int, y: Int) => x + y))
