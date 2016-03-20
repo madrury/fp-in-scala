@@ -114,6 +114,27 @@ object MyList {
         MyList.foldLeft(as, MyList[A]())((l, a) => Cons(a, l))
     }
 
+    // Ex 3.13
+    def foldRightInTermsOfLeft[A, B](as: MyList[A], z: B)(f: (A, B) => B): B = {
+        MyList.foldLeft(MyList.reverse(as), z)((b, a) => f(a, b))
+    }
+
+    // Ex 3.14
+    def append[A](a1s: MyList[A], a2s: MyList[A]): MyList[A] = {
+        MyList.foldRight(a1s, a2s)(Cons(_, _))
+    }
+
+    // Ex 3.15
+    def coalesce[A](aas: MyList[MyList[A]]): MyList[A] = {
+        MyList.foldRight(aas, Nil:MyList[A])(MyList.append(_, _))
+    }
+
+    // Ex 3.18
+    def map[A, B](as: MyList[A], f: A => B): MyList[B] = {
+        MyList.foldRight(as, Nil:MyList[B])((a, l) => Cons(f(a), l))
+    }
+        
+
 }
 
 val x = MyList(1, 2, 3, 4)
@@ -150,7 +171,22 @@ val x = MyList(1, 2, 3, 4)
 // Ex 3.10
 // println(MyList.foldLeft(MyList(1, 2, 3, 4), 0)(_ + _))
 // println(MyList.foldLeft(MyList(1, 2, 3, 4), 1)(_ * _))
+//println(MyList.foldLeft(MyList(1, 2, 3, 4), Nil:MyList[Int])((x, y) => Cons(y, x)))
 
 // Ex 3.12
-println(MyList.reverse(MyList(1, 2, 3, 4)))
-println(MyList.reverseFoldLeft(MyList(1, 2, 3, 4)))
+// println(MyList.reverse(MyList(1, 2, 3, 4)))
+// println(MyList.reverseFoldLeft(MyList(1, 2, 3, 4)))
+
+// Ex 3.13
+// println(MyList.foldRightInTermsOfLeft(MyList(1, 2, 3, 4), 0)(_ + _))
+// println(MyList.foldRightInTermsOfLeft(MyList(1, 2, 3, 4), Nil:MyList[Int])(Cons(_, _)))
+
+// Ex 3.14
+// println(MyList.append(MyList(1, 2, 3), MyList(4, 5, 6)))
+
+// Ex 3.15
+// println(MyList.coalesce(MyList(MyList(1, 2), MyList(3, 4), MyList(5, 6))))
+
+// Ex 3.18
+println(MyList.map(MyList(1, 2, 3, 4), (a: Int) => a + 1))
+println(MyList.map(MyList(1, 2, 3, 4), (a: Int) => 0))
