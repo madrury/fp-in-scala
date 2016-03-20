@@ -156,7 +156,7 @@ object MyList {
         MyList.flatMap(as, (a: A) => if (p(a)) MyList(a) else Nil:MyList[A])        
     }
 
-    // Ex 3.22, 3.33
+    // Ex 3.22, 3.23
     // We don't have a mixed type collection yet, so zipping together two
     // List's of like data-type will have to do for now.
     def zip[A](a1s: MyList[A], a2s: MyList[A]): MyList[MyList[A]] = (a1s, a2s) match {
@@ -169,6 +169,22 @@ object MyList {
             case Cons(a1, Cons(a2, Nil)) => f(a1, a2)
             case _ => sys.error("Non ordered pair found.")
         })
+    }
+
+    // Ex 3.24
+    def isEmpty[A](as: MyList[A]): Boolean = as match {
+        case Nil => true
+        case _ => false
+    }
+    def beginsWith[A](as: MyList[A], stub: MyList[A]): Boolean = {
+        if (MyList.isEmpty(stub)) true
+        else if (MyList.isEmpty(as)) false
+        else if (MyList.head(as) != MyList.head(stub)) false
+        else MyList.beginsWith(MyList.tail(as), MyList.tail(stub))
+    }
+    def hasSubsequence[A](as: MyList[A], sub: MyList[A]): Boolean = as match {
+        case Nil => false
+        case Cons(x, xs) => MyList.beginsWith(as, sub) || MyList.beginsWith(xs, sub)
     }
 
 }
@@ -239,4 +255,11 @@ val x = MyList(1, 2, 3, 4)
 //  println(MyList.filterWithFlatMap(x, (x: Int) => x % 2 == 0))
 
 // Ex 3.22
-println(MyList.zipWith(MyList(1, 2, 3), MyList(1, 2, 3), (x: Int, y: Int) => x + y))
+// println(MyList.zipWith(MyList(1, 2, 3), MyList(1, 2, 3), (x: Int, y: Int) => x + y))
+
+// Ex 2.24
+println(MyList.beginsWith(MyList(1, 2, 3, 4), MyList(1, 2)))
+println(MyList.beginsWith(MyList(1, 2, 3, 4), MyList(2, 3)))
+println(MyList.beginsWith(MyList(1, 2), MyList(1, 2, 3)))
+println(MyList.hasSubsequence(MyList(1, 2, 3, 4), MyList(2, 3)))
+println(MyList.hasSubsequence(MyList(1, 2, 3, 4), MyList(2, 4)))
