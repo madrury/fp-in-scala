@@ -40,6 +40,14 @@ object Option {
         case (Some(a), Some(b)) => Some(f(a, b))
     }
 
+    // Ex 4.4
+    def sequence[A](a: List[Option[A]]): Option[List[A]] = a match {
+        // Option[A] => List[A]
+        case Nil => Some(Nil)
+        case None::xs => None
+        case Some(a)::xs => map2(Some(a), sequence(xs))(_ :: _)
+    }
+
 }
 import Option._
 
@@ -78,6 +86,10 @@ val n:Option[Int] = None
 // println(n.filter((t: Int) => t == 0))
 
 // Exercise 4.3
-println(map2(x, y)((x, y) => x + y))
-println(map2(n, y)((x, y) => x + y))
-println(map2(n, n)((x, y) => x + y))
+//println(map2(x, y)((x, y) => x + y))
+//println(map2(n, y)((x, y) => x + y))
+//println(map2(n, n)((x, y) => x + y))
+
+// Exercise 4.4
+println(sequence(List(Some(1), Some(2), Some(3))))
+println(sequence(List(Some(1), None:Option[Int], Some(3))))
