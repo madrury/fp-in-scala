@@ -39,6 +39,11 @@ object Option {
         case (_, None) => None
         case (Some(a), Some(b)) => Some(f(a, b))
     }
+    // Implementation with no pattern matching, just higher order functions
+    def map2_2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = {
+        a flatMap (aa => b map (bb => f(aa, bb)))
+    }
+
 
     // Ex 4.4
     def sequence[A](a: List[Option[A]]): Option[List[A]] = a match {
@@ -47,6 +52,20 @@ object Option {
         case None::xs => None
         case Some(a)::xs => map2(Some(a), sequence(xs))(_ :: _)
     }
+
+    // Ex 4.5
+    def traverse[A, B](as: List[A])(f: A => Option[B]): Option[List[B]] = as match {
+        case Nil => Some(Nil)
+        case x::xs => map2(f(x), traverse(xs)(f))(_ :: _)
+    }
+    def traverse_2[A, B](as: List[A])(f: A => Option[B]): Option[List[B]] = {
+        as.foldRight(Some(Nil):Option[List[B]])((x, xs) => map2(f(x), xs)(_ :: _))
+    }
+    def sequence_2[A](a: List[Option[A]]): Option[List[A]] = {
+        traverse(a)(x => x)
+    }
+
+
 
 }
 import Option._
@@ -86,10 +105,15 @@ val n:Option[Int] = None
 // println(n.filter((t: Int) => t == 0))
 
 // Exercise 4.3
-//println(map2(x, y)((x, y) => x + y))
-//println(map2(n, y)((x, y) => x + y))
-//println(map2(n, n)((x, y) => x + y))
+//println(map2_2(x, y)((x, y) => x + y))
+//println(map2_2(n, y)((x, y) => x + y))
+//println(map2_2(n, n)((x, y) => x + y))
 
 // Exercise 4.4
-println(sequence(List(Some(1), Some(2), Some(3))))
-println(sequence(List(Some(1), None:Option[Int], Some(3))))
+println(sequence_2(List(Some(1), Some(2), Some(3))))
+println(sequence_2(List(Some(1), None:Option[Int], Some(3))))
+
+// Exercise 4.5
+println(traverse_2(List(1, 2, 3))(x => Some(2*x)))
+println(traverse_2(List(List(1.0, 2.0, 3.0), List(2.0)))(mean))
+println(traverse_2(List(List(1.0, 2.0, 3.0), List()))(mean))
