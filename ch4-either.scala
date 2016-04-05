@@ -21,9 +21,18 @@ case class Left[+E](value: E) extends Either[E, Nothing]
 case class Right[+A](value: A) extends Either[Nothing, A]
 
 object Either {
+
+//    def map2[E, A, B, C](a: Either[E, A], b: Either[E, B])(f: (A, B) => C): Either[E, C] = {
+//        a flatMap (aa => (b map (bb => f(aa, bb)))) 
+//    }
+    // With a for comprehension
     def map2[E, A, B, C](a: Either[E, A], b: Either[E, B])(f: (A, B) => C): Either[E, C] = {
-        a flatMap (aa => (b map (bb => f(aa, bb)))) 
+        for {
+            aa <- a
+            bb <- b
+        } yield f(aa, bb)
     }
+    
 }
 
 import Either._
