@@ -32,6 +32,12 @@ object Either {
             bb <- b
         } yield f(aa, bb)
     }
+
+    def sequence[E, A](es: List[Either[E, A]]): Either[E, List[A]] = es match {
+        case Nil => Right(Nil)
+        case Left(e)::xs => Left(e)
+        case Right(a)::xs => map2(Right(a), sequence(xs))(_ :: _)
+    }
     
 }
 
@@ -55,7 +61,11 @@ val e:Either[String, Int] = Left("Error!")
 //println(e.orElse(Left("Error!")))
 
 val f = ((x:Int, y:Int) => x + y)
-println(map2(x, x)(f))
-println(map2(e, x)(f))
-println(map2(x, e)(f))
-println(map2(e, e)(f))
+//println(map2(x, x)(f))
+//println(map2(e, x)(f))
+//println(map2(x, e)(f))
+//println(map2(e, e)(f))
+
+println(sequence(List(Right(1), Right(2), Right(3))))
+println(sequence(List(Right(1), Left("Error!"), Right(3))))
+println(sequence(List(Right(1), Left("Error!"), Right("Another Error!"))))
