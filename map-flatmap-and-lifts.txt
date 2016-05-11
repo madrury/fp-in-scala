@@ -79,9 +79,9 @@ in this case the map is 1-to-1 and onto.
   Now we can use the same tower of mappings to define lift, let's see what it does
 
     ([a_1, ..., a_n], [b_1, ..., b_n], f)                             
-      -> ([a_1, ..., a_n], [b_1, ..., b_n], a' -> (b' -> f('a, b')))  # Canonical isomorphism#
-      -> ([b' -> f(a_1, b'), ..., b' -> f(a_2, b')], [b_1, ..., b_n]) # map 
-      -> (b' -> [f(a_1, b'), ..., f(a_n, b')], [b_1, ..., b_n])       # flatmap
-      -> [f(a_1, b_1), ..., f(a_1, b_n), f(a_2, b_1), ..., f(a_n, b_n)]
+      -> ([a_1, ..., a_n], [b_1, ..., b_n], a' -> (b' -> f('a, b')))    # Canonical isomorphism#
+      -> ([b' -> f(a_1, b'), ..., b' -> f(a_2, b')], [b_1, ..., b_n])   # map 
+      -> (b' -> [f(a_1, b'), ..., f(a_n, b')], [b_1, ..., b_n])         # e
+      -> [f(a_1, b_1), ..., f(a_1, b_n), f(a_2, b_1), ..., f(a_n, b_n)] # flatmap
 
 So, for List, lift evaluates f on the grid determined by a List[A] and a List[B].
