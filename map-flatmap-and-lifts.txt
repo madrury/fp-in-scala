@@ -42,10 +42,6 @@ Note that this map is 1-to-1, but it is not onto.  Using e, we can continue the 
                     |
 		    | # flatmap
 		    v
-    Option[B] * Hom(B, Option[C])
-                    |
-		    | 
-		    v
                 Option[C]
 
 This composition is lift.
