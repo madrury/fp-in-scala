@@ -1,0 +1,91 @@
+  The Option datatype has two methods, map and flatmap, with type signatures
+
+    map:     Option[A] * Hom(A, B) => Option[B]
+    flatmap: Option[A] * Hom(A, Option[B]) => Option[B]
+
+Given a function f: A * B => C, we would like to lift to a function \bar f: Option[A] * Option[B] => Option[C].  This gives lift (or map2 in the text) the type signature:
+
+    lift: Option[A] * Option[B] * Hom(A * B, C) => Option[C]
+
+  We can figure out how to do this by manipulating the domain of lift algebraically:
+
+    Option[A] * Option[B] * Hom(A * B, C)
+                    |
+		    | # Canonical isomorphism
+		    v
+    Option[A] * Option[B] * Hom(A , Hom(B, C))
+                    |
+		    | # Canonical isomorphism
+		    v
+    Option[B] * Option[A] * Hom(A , Hom(B, C))
+                    |
+		    | # map applied to an Option[A] * Hom(A, Hom(B, C))
+		    v
+    Option[B] * Option[Hom(B, C)]
+
+  I was stuck at this point for a little while until I realized that there is a canonically defined defined map 
+  
+    e: Option[Hom(B, C)] => Hom(B, Option[C])
+
+which is defined like this
+
+    Some(f) => (b -> Some(f(b)))
+    None    => (b -> None)
+
+Note that this map is 1-to-1, but it is not onto.  Using e, we can coninue the tower
+
+    Option[B] * Option[Hom(B, C)]
+                    |
+		    | # e
+		    v
+    Option[B] * Hom(B, Option[C])
+                    |
+		    | # flatmap
+		    v
+    Option[B] * Hom(B, Option[C])
+                    |
+		    | 
+		    v
+                Option[C]
+
+This composition is lift.
+            
+  Its worth checking that this recovers the definition from the book
+
+    (a, b, f) -> (a, b, a' -> (b' -> f(a', b')))             # Canonical isomorphism
+              -> (b, a map (a' -> (b' -> f(a', b'))))        # map
+              -> (b, b' -> (a map (a' -> f(a', b'))))        # e
+	      -> b flatmap (b' -> (a map (a' -> f(a', b')))) # flatmap
+
+This is exactly the definition given in the sidebar in the book (with a and b transposed).
+
+  Notice how sneakily e is applied.
+ 
+        a' -> (b' -> f(a', b')) 
+	    is a Hom(A, Hom(B, C))
+    so  a map (a' -> (b' -> f(a', b')))
+            is a Option[Hom(B, C)]
+    this gets replaced with the image under e
+        b' -> (a map (a' -> f(a', b')))
+            which is a Hom(B, Option[C]), the map can fail if a is None.
+
+
+  It's worth seeing if this plays out for List.  List has map and flatmap, so that should work, but we need an e map.  That is, we need an
+
+    e: List[Hom(A, B)] => Hom(A, List[B])
+
+ Theres an obvious canidate for e
+
+    [f_1, ..., f_n] -> (a -> [f_1(a), ..., f_n(a)])
+
+in this case the map is 1-to-1 and onto.
+
+  Now we can use the same tower of mappings to define lift, let's see waht it does
+
+    ([a_1, ..., a_n], [b_1, ..., b_n], f)                             
+      -> ([a_1, ..., a_n], [b_1, ..., b_n], a' -> (b' -> f('a, b')))  # Canonical isomorphism#
+      -> ([b' -> f(a_1, b'), ..., b' -> f(a_2, b')], [b_1, ..., b_n]) # map 
+      -> (b' -> [f(a_1, b'), ..., f(a_n, b')], [b_1, ..., b_n])       # flatmap
+      -> [f(a_1, b_1), ..., f(a_1, b_n), f(a_2, b_1), ..., f(a_n, b_n)]
+
+So, for List, lift evaluates f on the grid determined by a List[A] and a List[B].
