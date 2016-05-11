@@ -7,7 +7,7 @@ Given a function f: A * B => C, we would like to lift to a function \bar f: Opti
 
     lift: Option[A] * Option[B] * Hom(A * B, C) => Option[C]
 
-  We can figure out how to do this by manipulating the domain of lift algebraically:
+We can figure out how to do this by manipulating the domain of lift algebraically:
 
     Option[A] * Option[B] * Hom(A * B, C)
                     |
@@ -23,7 +23,7 @@ Given a function f: A * B => C, we would like to lift to a function \bar f: Opti
 		    v
     Option[B] * Option[Hom(B, C)]
 
-  I was stuck at this point for a little while until I realized that there is a canonically defined defined map 
+I was stuck at this point for a little while until I realized that there is a canonically defined defined map 
   
     e: Option[Hom(B, C)] => Hom(B, Option[C])
 
@@ -55,7 +55,7 @@ This composition is lift.
 
 This is exactly the definition given in the sidebar in the book (with a and b transposed).
 
-  Notice how sneakily e is applied.
+Notice how sneakily e is applied.
  
         a' -> (b' -> f(a', b')) 
 	    is a Hom(A, Hom(B, C))
