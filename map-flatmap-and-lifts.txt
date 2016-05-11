@@ -32,7 +32,7 @@ which is defined like this
     Some(f) => (b -> Some(f(b)))
     None    => (b -> None)
 
-Note that this map is 1-to-1, but it is not onto.  Using e, we can coninue the tower
+Note that this map is 1-to-1, but it is not onto.  Using e, we can continue the tower
 
     Option[B] * Option[Hom(B, C)]
                     |
@@ -74,13 +74,13 @@ This is exactly the definition given in the sidebar in the book (with a and b tr
 
     e: List[Hom(A, B)] => Hom(A, List[B])
 
- Theres an obvious canidate for e
+ There's an obvious candidate for e
 
     [f_1, ..., f_n] -> (a -> [f_1(a), ..., f_n(a)])
 
 in this case the map is 1-to-1 and onto.
 
-  Now we can use the same tower of mappings to define lift, let's see waht it does
+  Now we can use the same tower of mappings to define lift, let's see what it does
 
     ([a_1, ..., a_n], [b_1, ..., b_n], f)                             
       -> ([a_1, ..., a_n], [b_1, ..., b_n], a' -> (b' -> f('a, b')))  # Canonical isomorphism#
