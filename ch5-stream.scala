@@ -1,5 +1,8 @@
+package fpinscala
+
 sealed trait Stream[+A] {
 
+    // 5.1: Consume a stream and make a List of its contents.
     def toList: List[A] = this match {
         case Empty => Nil
         case Cons(h, t) => h() :: t().toList
@@ -26,7 +29,3 @@ object Stream {
 
 
 }
-import Stream._
-
-val x = Stream(1, 2, 3, 4)
-println(x.toList)
