@@ -8,6 +8,22 @@ sealed trait Stream[+A] {
         case Cons(h, t) => h() :: t().toList
     }
 
+    // Because of the => B as the second argument to f, the second argument's
+    // evaluation is deferred until it's value is needed.  The first argument
+    // (the head of the strema in the recursive call) is evaluated when that
+    // call is put on the stack.
+    def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
+        case Empty => z
+        // The head is evaluated right here, but the recursive call is
+        // delayed.  If f can return only based on the value of h, then the
+        // recursive call is never evaluated.
+        case Cons(h, t) => f(h(), t().foldRight(z)(f))
+    }
+
+    // This is passed as the last argument?  Good idea.
+    def any(p: A => Boolean): Boolean = foldRight(false)((a, b) => p(a) || b)
+    def all(p: A => Boolean): Boolean = foldRight(true)((a, b) => p(a) && b)
+
     // 5.2: take the first n elements of a stream
     // unsafeTake assumes that the interger argument is non-negative, it will
     //   fail otherwise.
