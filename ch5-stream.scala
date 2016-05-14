@@ -9,17 +9,33 @@ sealed trait Stream[+A] {
     }
 
     // 5.2: take the first n elements of a stream
-    // Assumes that n >= 0
+    // unsafeTake assumes that the interger argument is non-negative, it will
+    //   fail otherwise.
+    // take wraps unsafeTake and returns an option.  It fails if the integer
+    //   argument is non-negative.
     def unsafeTake(n: Int): Stream[A] = {
-        if (n == 0) return Stream.empty
-        else return this match {
+        if (n == 0) Stream.empty
+        else this match {
             case Empty => Stream.empty
             case Cons(h, t) => Stream.cons(h(), t().unsafeTake(n - 1)) 
         }
     }
     def take(n: Int): Option[Stream[A]] = {
-        if (n < 0) {return None}
+        if (n < 0) None
         else Some(this.unsafeTake(n))
+    }
+
+    // 5.2: drop the first n arguments of a string.
+    def unsafeDrop(n: Int): Stream[A] = {
+        if (n == 0) this
+        else this match {
+            case Empty => Stream.empty
+            case Cons(h, t) => t().unsafeDrop(n - 1)
+        }
+    }
+    def drop(n: Int): Option[Stream[A]] = {
+        if (n < 0) None
+        else Some(this.unsafeDrop(n)) 
     }
 
 }
