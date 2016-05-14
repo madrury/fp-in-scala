@@ -54,8 +54,9 @@ sealed trait Stream[+A] {
         else Some(this.unsafeDrop(n)) 
     }
 
-    // 5.3 take the largest initial segment of a sequence for which all
+    // 5.3: take the largest initial segment of a sequence for which all
     //   elements satisfy a predicate.
+    // 5.5: implement takeWhile using foldRight.
     def takeWhile(p: A => Boolean): Stream[A] = this match {
         case Empty => Stream.empty
         case Cons(h, t) => {
@@ -63,6 +64,11 @@ sealed trait Stream[+A] {
             else Stream.empty
         }
     }
+    def takeWhileFoldRight(p: A => Boolean): Stream[A] =
+        this.foldRight(Stream.empty[A])((a, b) => {
+            if (p(a)) Stream.cons(a, b)
+            else Stream.empty
+        })
 
 }
 case object Empty extends Stream[Nothing]
