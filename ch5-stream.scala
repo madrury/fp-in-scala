@@ -70,6 +70,12 @@ sealed trait Stream[+A] {
             else Stream.empty
         })
 
+    // 5.6 headOption using foldRight
+    def headOption: Option[A] =
+        // Because the function being folded does not depend on its second
+        // argument, the second argument never gets evaluated.
+        this.foldRight(None: Option[A])((a, b) => Some(a))
+
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
