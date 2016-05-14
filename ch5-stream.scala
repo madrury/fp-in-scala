@@ -77,17 +77,17 @@ sealed trait Stream[+A] {
         foldRight(None: Option[A])((a, b) => Some(a))
 
     // 5.7: map
-    def map(f: A => B): Stream[B] =
-        foldRight(Stream.empty[B])((a, s) => Stream.cons(f(a), t))
+    def map[B](f: A => B): Stream[B] =
+        foldRight(Stream.empty[B])((a, s) => Stream.cons(f(a), s))
     // 5.7 filter
     def filter(p: A => Boolean): Stream[A] =
         foldRight(Stream.empty[A])((a, s) => {
-            if p(a) Stream.cons(a, s))
-            else s.filter(p)
-        }
+            if (p(a)) Stream.cons(a, s)
+            else s 
+        })
     // 5.7 append, add elements of one stream to the end of another
-    def append(z: Stream[A]): Stream[A] =
-        foldRight(z: => Stream[A])(Stream.cons(_, _))
+    def append[B >: A](z: => Stream[B]): Stream[B] =
+        foldRight(z)(Stream.cons(_, _))
     // 5.7 flatMap
     def flatMap[B](f: A => Stream[B]): Stream[B] =
         foldRight(Stream.empty[B])((a, b) => f(a).append(b))
