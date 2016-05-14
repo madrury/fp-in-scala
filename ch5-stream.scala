@@ -38,6 +38,16 @@ sealed trait Stream[+A] {
         else Some(this.unsafeDrop(n)) 
     }
 
+    // 5.3 take the largest initial segment of a sequence for which all
+    //   elements satisfy a predicate.
+    def takeWhile(p: A => Boolean): Stream[A] = this match {
+        case Empty => Stream.empty
+        case Cons(h, t) => {
+            if (p(h())) Stream.cons(h(), t().takeWhile(p))
+            else Stream.empty
+        }
+    }
+
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
@@ -56,6 +66,5 @@ object Stream {
     def apply[A](as: A*): Stream[A] = {
         if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
     }
-
 
 }
