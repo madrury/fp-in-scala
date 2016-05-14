@@ -74,7 +74,24 @@ sealed trait Stream[+A] {
     def headOption: Option[A] =
         // Because the function being folded does not depend on its second
         // argument, the second argument never gets evaluated.
-        this.foldRight(None: Option[A])((a, b) => Some(a))
+        foldRight(None: Option[A])((a, b) => Some(a))
+
+    // 5.7: map
+    def map(f: A => B): Stream[B] =
+        foldRight(Stream.empty[B])((a, s) => Stream.cons(f(a), t))
+    // 5.7 filter
+    def filter(p: A => Boolean): Stream[A] =
+        foldRight(Stream.empty[A])((a, s) => {
+            if p(a) Stream.cons(a, s))
+            else s.filter(p)
+        }
+    // 5.7 append, add elements of one stream to the end of another
+    def append(z: Stream[A]): Stream[A] =
+        foldRight(z: => Stream[A])(Stream.cons(_, _))
+    // 5.7 flatMap
+    def flatMap[B](f: A => Stream[B]): Stream[B] =
+        foldRight(Stream.empty[B])((a, b) => f(a).append(b))
+        
 
 }
 case object Empty extends Stream[Nothing]
