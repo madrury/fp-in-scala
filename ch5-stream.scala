@@ -117,7 +117,20 @@ object Stream {
     def ones: Stream[Int] = Stream.cons(1, Stream.ones)
     def constant[A](a: A): Stream[A] = Stream.cons(a, Stream.constant(a))
 
-    // 5.9 Generate an infinite sequence of integers n, n+1, n+2, ...
+    // 5.9: Generate an infinite sequence of integers n, n+1, n+2, ...
     def from(n: Int): Stream[Int] = Stream.cons(n, Stream.from(n+1))
+
+    // 5.10: Generate the fibonnaci sequence
+    def fibsFrom(i: Int, j: Int): Stream[Int] =
+        Stream.cons(i, Stream.fibsFrom(j, i + j))
+    def fibs: Stream[Int] = Stream.fibsFrom(0, 1)
+
+    // 5.11: A general corecursive function for generating a stream
+    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
+        f(z) match {
+            Some[(a, s)] = Stream.cons(a, Stream.unfold(s)(f))
+            _ => Stream.empty[A]
+        }
+    }
 
 }
