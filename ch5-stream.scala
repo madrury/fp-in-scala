@@ -113,7 +113,11 @@ object Stream {
         if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
     }
 
+    // 5.8: Infinite stream yielding a constant
     def ones: Stream[Int] = Stream.cons(1, Stream.ones)
     def constant[A](a: A): Stream[A] = Stream.cons(a, Stream.constant(a))
+
+    // 5.9 Generate an infinite sequence of integers n, n+1, n+2, ...
+    def from(n: Int): Stream[Int] = Stream.cons(n, Stream.from(n+1))
 
 }
