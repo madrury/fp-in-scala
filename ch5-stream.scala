@@ -128,9 +128,19 @@ object Stream {
     // 5.11: A general corecursive function for generating a stream
     def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
         f(z) match {
-            Some[(a, s)] = Stream.cons(a, Stream.unfold(s)(f))
-            _ => Stream.empty[A]
+            case Some((a, s)) => Stream.cons(a, Stream.unfold(s)(f))
+            case _ => Stream.empty[A]
         }
     }
+
+    def constantFromUnfold[A](a: A): Stream[A] =
+        Stream.unfold(a)(s => Some((a, a)))
+    def fromFromUnfold(n: Int): Stream[Int] =
+        Stream.unfold(n)(n => Some((n, n + 1)))
+    def fibFromUnfold: Stream[Int] =
+        Stream.unfold((0, 1))(s => s match {
+            case (n0, n1) => Some((n0, (n1, n0 + n1)))
+            case _ => None  // State is always a tuple, so this should never happen
+        })
 
 }
