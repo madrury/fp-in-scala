@@ -154,6 +154,13 @@ sealed trait Stream[+A] {
         // haystack stream gets exhausted before the needle
         //this.zipWith(a)(_ == _).all(_ == true)
 
+    // 5.15: Implement tails
+    def tails: Stream[Stream[A]] =
+        Stream.unfold(this)(s => s match {
+            case Cons(a, arest) => Some((s, arest()))
+            case Empty => None
+        })
+
         
 }
 case object Empty extends Stream[Nothing]
