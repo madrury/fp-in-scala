@@ -79,20 +79,37 @@ sealed trait Stream[+A] {
     // 5.7: map
     def map[B](f: A => B): Stream[B] =
         foldRight(Stream.empty[B])((a, s) => Stream.cons(f(a), s))
-    // 5.7 filter
+    // 5.7: filter
     def filter(p: A => Boolean): Stream[A] =
         foldRight(Stream.empty[A])((a, s) => {
             if (p(a)) Stream.cons(a, s)
             else s 
         })
-    // 5.7 append, add elements of one stream to the end of another
+    // 5.7: append, add elements of one stream to the end of another
     def append[B >: A](z: => Stream[B]): Stream[B] =
         foldRight(z)(Stream.cons(_, _))
-    // 5.7 flatMap
+    // 5.7: flatMap
     def flatMap[B](f: A => Stream[B]): Stream[B] =
         foldRight(Stream.empty[B])((a, b) => f(a).append(b))
 
     def find(p: A => Boolean): Option[A] = this.filter(p(_)).headOption
+
+    // 5.13: map in terms of unfold.
+    def mapFromUnfold[B](f: A => B): Stream[B] =
+        Stream.unfold(this)(s => s match {
+            case Cons(a, b) => Some((f(a()), b()))
+            case Empty => None
+        })
+    // take in terms of unfold
+    def takeFromUnfold(n: Int): Stream[A] =
+        Stream.unfold((this, n))(s => s match { 
+            case (stream, 0) => None
+            case (stream, k) => stream match {
+                case Cons(a, b) => Some((a(), (b(), k - 1)))
+                case Empty => None
+            }
+        })
+
         
 }
 case object Empty extends Stream[Nothing]
@@ -133,6 +150,7 @@ object Stream {
         }
     }
 
+    // 5.12 constant, from and fibs using unfold.
     def constantFromUnfold[A](a: A): Stream[A] =
         Stream.unfold(a)(s => Some((a, a)))
     def fromFromUnfold(n: Int): Stream[Int] =
