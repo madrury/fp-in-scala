@@ -139,6 +139,9 @@ sealed trait Stream[+A] {
                 => None
         })
 
+    def zipAll[B](that: Stream[B]): Stream[(Option[A], Option[B])] =
+        this.zipWithAll(that)((a, b) => (a, b))
+
         
 }
 case object Empty extends Stream[Nothing]
