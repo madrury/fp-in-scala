@@ -60,6 +60,7 @@ object App {
         val x = Stream(1, 2, 3, 4)
         val y = Stream(0, 0, 0, 0)
         val z = Stream(1, 1, 1, 1, 1, 1)
+        val s = Stream(1, 2)
         //println(x.toList)
         //println(x.takeFromUnfold(2).toList)
         //println(x.drop(2).map(_.toList))
@@ -81,10 +82,13 @@ object App {
         //println(Stream.constantFromUnfold(2).take(5).map(_.toList))
         //println(Stream.fromFromUnfold(2).take(5).map(_.toList))
         //println(Stream.fibFromUnfold.take(20).map(_.toList))
-        println(x.zipWith(y)(_ + _).toList)
-        println(x.zipWith(Stream.constant(1))(_ + _).toList)
-        println(x.zip(y).toList)
-        println(x.zipAll(z).toList)
+        //println(x.zipWith(y)(_ + _).toList)
+        //println(x.zipWith(Stream.constant(1))(_ + _).toList)
+        //println(x.zip(y).toList)
+        //println(x.zipAll(z).toList)
+        println(x.startsWith(s))
+        println(s.startsWith(x))
+        println(x.startsWith(y))
 
     }
 

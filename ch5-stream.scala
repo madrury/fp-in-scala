@@ -142,6 +142,18 @@ sealed trait Stream[+A] {
     def zipAll[B](that: Stream[B]): Stream[(Option[A], Option[B])] =
         this.zipWithAll(that)((a, b) => (a, b))
 
+    // 5.14: Implement startsWith
+    def startsWith[A](a: Stream[A]): Boolean =
+        this.zipAll(a).takeWhile(!_._2.isNone).map(
+            s => s match {
+                case (Some(a), Some(b)) => a == b
+                case _ => false
+            }
+        ).all(_ == true)
+        // This implementation fails by erroniously returning true when the
+        // haystack stream gets exhausted before the needle
+        //this.zipWith(a)(_ == _).all(_ == true)
+
         
 }
 case object Empty extends Stream[Nothing]

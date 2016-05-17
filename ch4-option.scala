@@ -2,6 +2,11 @@ package fpinscala
 
 sealed trait Option[+A] {
 
+    def isNone: Boolean = this match {
+        case None => true
+        case _ => false
+    }
+
     def map[B](f: A => B): Option[B] = this match {
         case None => None
         case Some(a) => Some(f(a))
