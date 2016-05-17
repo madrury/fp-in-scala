@@ -109,6 +109,35 @@ sealed trait Stream[+A] {
                 case Empty => None
             }
         })
+    // takeWhile in terms of unfold
+    def takeWhileFromUnfold(p: A => Boolean): Stream[A] = 
+        Stream.unfold(this)(s => s match {
+            case Cons(a, b) => if (p(a())) Some((a(), b())) else None
+            case Empty => None
+        })
+    // zipWith in terms of unfold
+    def zipWith[B, C](that: Stream[B])(f: (A, B) => C): Stream[C] =
+        Stream.unfold((this, that))(s => s match {
+            case (Cons(a, arest), Cons(b, brest))
+                => Some( (f(a(), b()), (arest(), brest())) )
+            case _ => None
+        })
+
+    def zip[B](that: Stream[B]): Stream[(A, B)] =
+        this.zipWith(that)((a, b) => (a, b))
+
+    // Zips together two streams, even after one of them becomes exhausted.
+    def zipWithAll[B, C](that: Stream[B])(f: (Option[A], Option[B]) => C): Stream[C] =
+        Stream.unfold((this, that))(s => s match {
+            case (Cons(a, arest), Cons(b, brest))
+                => Some(( f(Some(a()), Some(b())), (arest(), brest()) ))
+            case (Cons(a, arest), Empty)
+                => Some(( f(Some(a()), None:Option[B]), (arest(), Stream.empty[B]) ))
+            case (Empty, Cons(b, brest))
+                => Some(( f(None:Option[A], Some(b())), (Stream.empty[A], brest()) ))
+            case (Empty, Empty)
+                => None
+        })
 
         
 }
