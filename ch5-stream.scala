@@ -161,7 +161,17 @@ sealed trait Stream[+A] {
             case Empty => None
         })
 
-        
+    def hasSubsequence[A](s: Stream[A]): Boolean =
+        this.tails.map(_.startsWith(s)).any(_ == true)
+
+    // 5.16: Implement scanRight to generalize tails
+    def scanRight[B](z: => B)(f: (A, => B) => B): (B, Stream[B]) =
+        // Fold right pairs (B, Stream[B]) accumulating the imtermediate results
+        //   (A, (B, Stream[B])) => (B, Stream[B])
+        this.foldRight((z, Stream(z))) {
+            case (a, (b, bs)) => (f(a, b), Stream.cons(f(a, b), bs))
+        }
+
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]

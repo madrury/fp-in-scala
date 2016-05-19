@@ -86,9 +86,12 @@ object App {
         //println(x.zipWith(Stream.constant(1))(_ + _).toList)
         //println(x.zip(y).toList)
         //println(x.zipAll(z).toList)
-        println(x.startsWith(s))
-        println(s.startsWith(x))
-        println(x.startsWith(y))
+        //println(x.startsWith(s))
+        //println(s.startsWith(x))
+        //println(x.startsWith(y))
+        //println(x.tails.map(_.toList).toList)
+        //println(x.tails.map(_.toList).toList)
+        println(x.scanRight(0)(_ + _)._2.toList)
 
     }
 
