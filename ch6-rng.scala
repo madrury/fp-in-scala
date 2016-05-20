@@ -18,6 +18,9 @@ case class SimpleRNG(seed: Long) extends RNG {
 
 object Random {
 
+    def integer(rng: RNG): (Int, RNG) = rng.nextInt
+  
+    // 6.1: Implement nonNegativeInt
     // Int.MinValue is one less than -Int.MaxValue
     def nonNegativeInt(rng: RNG): (Int, RNG) = {
         val (n, st) = rng.nextInt
@@ -25,10 +28,28 @@ object Random {
         (k, st)
     }
 
+    // 6.2: Generate a random double.
     def double(rng: RNG): (Double, RNG) = {
         val (n, st) = Random.nonNegativeInt(rng)
         val k = n.toDouble / Int.MaxValue
         (k, st)
+    }
+
+    // 6.3: Generate tuples of random numbers.
+    def intDouble(rng: RNG): ((Int, Double), RNG) = {
+        val (i, rng1) = Random.integer(rng)
+        val (f, rng2) = Random.double(rng1)
+        ((i, f), rng2)
+    }
+    def doubleInt(rng: RNG): ((Double, Int), RNG) = {
+        val ((i, f), rng1) = Random.intDouble(rng)
+        ((f, i), rng1)
+    }
+    def double3(rng: RNG): ((Double, Double, Double), RNG) = {
+        val (f1, rng1) = Random.double(rng)
+        val (f2, rng2) = Random.double(rng1)
+        val (f3, rng3) = Random.double(rng2)
+        ((f1, f2, f3), rng3)
     }
 
 }
