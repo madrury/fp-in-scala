@@ -51,6 +51,9 @@ object Random {
         val k = n.toDouble / Int.MaxValue
         (k, st)
     }
+    // 6.5: Implement double with map
+    def doubleWithMap: Rand[Double] =
+        Random.map(integer)(i => i.toDouble / Int.MaxValue)
 
     // 6.3: Generate tuples of random numbers.
     def intDouble(rng: RNG): ((Int, Double), RNG) = {
