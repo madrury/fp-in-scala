@@ -4,7 +4,7 @@ trait RNG {
     def nextInt: (Int, RNG)
 }
 
-
+// Base linear random number generator.
 case class SimpleRNG(seed: Long) extends RNG {
 
     def nextInt: (Int, RNG) = {
@@ -16,9 +16,23 @@ case class SimpleRNG(seed: Long) extends RNG {
 
 }
 
+
 object Random {
 
-    def integer(rng: RNG): (Int, RNG) = rng.nextInt
+    // Type alias for random number generating state machine.
+    type Rand[+A] = RNG => (A, RNG)
+
+    val integer: Rand[Int] = _.nextInt
+
+    // Pass through the state uchanged, and generate a constant value.
+    def unit[A](a: A): Rand[A] = rng => (a, rng)
+
+    // Transform the output of a random number generator using a function
+    def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
+        rng => {
+            val (a, rng1) = s(rng)
+            (f(a), rng1)
+        }
   
     // 6.1: Implement nonNegativeInt
     // Int.MinValue is one less than -Int.MaxValue
@@ -27,6 +41,9 @@ object Random {
         val k = if (n < 0) -(n + 1) else n
         (k, st)
     }
+
+    def nonNegativeEven: Rand[Int] =
+        Random.map(nonNegativeInt)(i => i - i % 2)
 
     // 6.2: Generate a random double.
     def double(rng: RNG): (Double, RNG) = {
