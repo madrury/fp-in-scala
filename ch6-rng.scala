@@ -52,4 +52,16 @@ object Random {
         ((f1, f2, f3), rng3)
     }
 
+    // 6.4: Generate a list of random integers of a given size.
+    def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
+        def go(k: Int, acc: List[Int], r: RNG): (List[Int], RNG) = {
+            if(k == 0) (acc, r)
+            else {
+                val (n, r1) = Random.integer(r)
+                go(k - 1, n :: acc, r1)
+            }
+        }
+        go(count, List(), rng)
+    }
+
 }
