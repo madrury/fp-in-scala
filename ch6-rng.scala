@@ -44,6 +44,18 @@ object Random {
     def both[A, B](ar: Rand[A], br: Rand[B]): Rand[(A, B)] =
         map2(ar, br)((_, _))
 
+    def sequence[A](rs: List[Rand[A]]): Rand[List[A]] = {
+        rng => {
+            // Folding over a (Rand[A], (RNG, List[A])) => (RNG, List[A])
+            rs.foldRight((List[A](), rng)) {
+                case (ra, (as, rng0)) => {
+                    val (a, rng1) = ra(rng0)
+                    (a :: as, rng1)
+                }
+            }
+        }
+    }
+
     val integer: Rand[Int] = _.nextInt
 
     // 6.1: Implement nonNegativeInt
