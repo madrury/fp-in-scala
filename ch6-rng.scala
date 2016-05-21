@@ -22,18 +22,30 @@ object Random {
     // Type alias for random number generating state machine.
     type Rand[+A] = RNG => (A, RNG)
 
-    val integer: Rand[Int] = _.nextInt
-
     // Pass through the state uchanged, and generate a constant value.
     def unit[A](a: A): Rand[A] = rng => (a, rng)
 
-    // Transform the output of a random number generator using a function
+    // Transform the output of a random number generator using a function.
     def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
         rng => {
             val (a, rng1) = s(rng)
             (f(a), rng1)
         }
-  
+
+    // 6.6: Transform the output of a pair of random number generators.
+    def map2[A, B, C](ar: Rand[A], br: Rand[B])(f: (A, B) => C): Rand[C] = {
+        rng => {
+            val (a, rng1) = ar(rng)
+            val (b, rng2) = br(rng1)
+            (f(a, b), rng2)
+        }
+    }
+
+    def both[A, B](ar: Rand[A], br: Rand[B]): Rand[(A, B)] =
+        map2(ar, br)((_, _))
+
+    val integer: Rand[Int] = _.nextInt
+
     // 6.1: Implement nonNegativeInt
     // Int.MinValue is one less than -Int.MaxValue
     def nonNegativeInt(rng: RNG): (Int, RNG) = {
