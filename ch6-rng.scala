@@ -44,6 +44,7 @@ object Random {
     def both[A, B](ar: Rand[A], br: Rand[B]): Rand[(A, B)] =
         map2(ar, br)((_, _))
 
+    // 6.7: Transform a list of random A's to a random list of A's
     def sequence[A](rs: List[Rand[A]]): Rand[List[A]] = {
         rng => {
             // Folding over a (Rand[A], (RNG, List[A])) => (RNG, List[A])
@@ -55,6 +56,13 @@ object Random {
             }
         }
     }
+
+    // The solution to to this problem in the solutions manual.
+    // Ingenious (at least to a newbie).  It folds a
+    //     (Rand[A], Rand[List[A]]) => Rand[List[A]]
+    // using map2 to tread the rng state through the list concatinations.
+    def sequence2[A](fs: List[Rand[A]]): Rand[List[A]] =
+        fs.foldRight(unit(List[A]()))((f, acc) => map2(f, acc)(_ :: _))
 
     val integer: Rand[Int] = _.nextInt
 
