@@ -64,6 +64,22 @@ object Random {
     def sequence2[A](fs: List[Rand[A]]): Rand[List[A]] =
         fs.foldRight(unit(List[A]()))((f, acc) => map2(f, acc)(_ :: _))
 
+    
+    // 6.8
+    def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] =
+        rng => {
+            val (a, rng1) = f(rng)
+            g(a)(rng1)
+        }
+
+    def nonNegativeLessThan(n: Int): Rand[Int] =
+        flatMap(nonNegativeInt)(i => { 
+            val mod = i % n
+            if (i + (n - 1) - mod >= 0) unit(mod)
+            else nonNegativeLessThan(n)
+        })
+
+
     val integer: Rand[Int] = _.nextInt
 
     // 6.1: Implement nonNegativeInt
