@@ -72,13 +72,13 @@ object Random {
             g(a)(rng1)
         }
 
-    def nonNegativeLessThan(n: Int): Rand[Int] =
-        flatMap(nonNegativeInt)(i => { 
-            val mod = i % n
-            if (i + (n - 1) - mod >= 0) unit(mod)
-            else nonNegativeLessThan(n)
-        })
+    // 6.9: Implement map in terms of flatMap
+    def mapFromFlatMap[A, B](a: Rand[A])(f: A => B): Rand[B] =
+        flatMap(a)(x => unit(f(x)))
 
+    // 6.9: Implement map2 in terms of flatMap
+    def map2FromFlatMap[A, B, C](ar: Rand[A], br: Rand[B])(f: (A, B) => C): Rand[C] =
+        flatMap(ar)(aa => map(br)(bb => f(aa, bb)))
 
     val integer: Rand[Int] = _.nextInt
 
@@ -131,5 +131,15 @@ object Random {
         }
         go(count, List(), rng)
     }
+
+    // Use flatMap to re-poll the random number generator when the value
+    // is larger than the greatest multiple of n representable as a positive
+    // integer.
+    def nonNegativeLessThan(n: Int): Rand[Int] =
+        flatMap(nonNegativeInt)(i => { 
+            val mod = i % n
+            if (i + (n - 1) - mod >= 0) unit(mod)
+            else nonNegativeLessThan(n)
+        })
 
 }
