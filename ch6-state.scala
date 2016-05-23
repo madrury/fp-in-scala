@@ -29,3 +29,11 @@ object State {
         rs.foldRight(State.unit[S, List[A]](List[A]()))(_.map2(_)(_ :: _))
 
 }
+
+
+// A simple counter for testing the state class.
+case class Counter(i: Int) {
+
+    def next: (Int, Counter) = (i, Counter(i + 1))
+
+}
