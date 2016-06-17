@@ -2,40 +2,43 @@
  * An implementation of regression (fit by gradient descent) in functional style.
  */
 
-type Vector = Array[Double]
+type Point = Array[Double]
 type Matrix = Array[Array[Double]]
 
 case class GradientDescentIteration(
-    point: Vector,
-    value: Double,
+    point: Point,
+    value: Double
 )
 
 case class LossFunction(
-    function: Vector => Double,
-    gradient: Vector => Vector
+    function: Point => Double,
+    gradient: Point => Point
 )
 
-object LossFunctionName {
-    sealed trait EnumVal
-    case object Gaussian extends EnumVal
-    val lossFunctions = Seq(Gaussian)
+object LossFunctionName extends Enumeration {
+    type LossFunctionName = Value
+    val Gaussian = Value
 }
 
 /*
  * Procedures for manipulating vectors and matricies.
  */
-object LinAlg = {
+object LinAlg {
 
     def nRow(X: Matrix): Int = X.length
     def nCol(X: Matrix): Int = X(0).length
 
-    def zeroVector(n: Int): Array[Double] = Array.fill[Double](n)(0) 
+    def zeroPoint(n: Int): Array[Double] = Array.fill[Double](n)(0) 
 
-    def subtract(v1: Vector, v2: Vector) = v1.zip(v2).map(_ - _)
-    def add(v1: Vector, v2: Vector) = v1.zip(v2).map(_ - _)
-    def scalarMult(lambda: Double, v: Vector) = v.map(_ * lambda)
+    def subtract(v1: Point, v2: Point): Point =
+        v1.zip(v2).map { case (x: Double, y: Double) => x - y }
+    def add(v1: Point, v2: Point): Point =
+        v1.zip(v2).map { case (x: Double, y: Double) => x + y }
+    def scalarMult(lambda: Double, v: Point): Point =
+        v.map( (x: Double) => x * lambda )
 
-    def dot(v1: Vector, v2: Vector) = v1.zip(v2).map(_ * _).sum 
+    def dot(v1: Point, v2: Point): Double =
+        v1.zip(v2).map { case (x: Double, y: Double) => x * y }.sum
 
 }
 
@@ -43,13 +46,14 @@ object LinAlg = {
  * Regression
  */
 object Regression {
+    import LossFunctionName._
 
     /* Fit a regression using gradient descent. */
-    def fit(X: Matrix, y: Vector, lf: LossFunctionName,
+    def fit(X: Matrix, y: Point, lf: LossFunctionName,
             tolerance: Double, learningRate: Double) = {
-        val zeros = LinAlg.zeroVector(LinAlg.nCol(X))
-        select(descend(learningRate, zeros, descender(X, y, lf)),
-               tolerance, _.value, _.gradient)
+        val zeros = LinAlg.zeroPoint(LinAlg.nCol(X))
+        select(descend(learningRate, zeros, descender(X, y, lf)))(
+               tolerance, _.value, _.point)
     }
 
     /*
@@ -60,16 +64,17 @@ object Regression {
      * tolerance, and what value to select when within tolerance elements are found.
      */
     def select[A, B](s: Stream[A])(tolerance: Double,
-                                   compareSelector: A => Double, valueSelector: A => B) = {
-        m match {
-            case x #:: y #:: ms if abs(compareSelector(x) - compareSelector(y)) < tolerance
+                                   compareSelector: A => Double,
+                                   valueSelector: A => B): B = {
+        s match {
+            case x #:: y #:: ms if math.abs(compareSelector(x) - compareSelector(y)) < tolerance
                 => valueSelector(y)
-            case _ => select(y #:: ms)(tolerance, compareSelector, valueSelector)
+            case x #:: y #:: ms => select(y #:: ms)(tolerance, compareSelector, valueSelector)
         }
     }
 
     /* Generate a stream of gradient descent steps. */
-    def descend(learningRate: Double, x0: Vector, lf: LossFunction):
+    def descend(learningRate: Double, x0: Point, lf: LossFunction):
         Stream[GradientDescentIteration] = {
 
         GradientDescentIteration(x0, lf.function(x0)) #::
@@ -81,7 +86,7 @@ object Regression {
     }
 
     /* Construct a loss function of a given type given some data. */
-    def descender(X: Matrix, y: Vector, lf: LossFunctionName) = lf match {
+    def descender(X: Matrix, y: Point, lf: LossFunctionName) = lf match {
         case LossFunctionName.Gaussian => makeLossFunctionGaussian(X, y)
     }
 
@@ -89,14 +94,15 @@ object Regression {
      *   function: sum of squared residuals.
      *   gradient: residuals.
      */
-    def makeLossFunctionGaussian(X: Matrix, y: Vector) = {
-        def gradient(beta: Vector): Vector = {
-            val predsResp = X.zip(y).map((row, resp) => (LinAlg.dot(row, beta), resp))
-            predsResp.map(_ - _)
+    def makeLossFunctionGaussian(X: Matrix, y: Point) = {
+        def gradient(beta: Point): Point = {
+            val predsResp = X.zip(y).map {
+                case(row, resp) => (LinAlg.dot(row, beta), resp) }
+            predsResp.map { case (preds, resp) => resp - preds }
         }
-        def function(beta: Vector): Double = {
+        def function(beta: Point): Double = {
             val residuals = gradient(beta)
-            residuals.map(_ * _).sum
+            residuals.map( (x: Double) => x*x ).sum
         }
         LossFunction(function, gradient)
     }
