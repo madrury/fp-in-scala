@@ -6,7 +6,7 @@ type Vector = Array[Double]
 type Matrix = Array[Array[Double]]
 
 case class GradientDescentIteration(
-    point: Vector
+    point: Vector,
     value: Double,
 )
 
@@ -35,7 +35,7 @@ object LinAlg = {
     def add(v1: Vector, v2: Vector) = v1.zip(v2).map(_ - _)
     def scalarMult(lambda: Double, v: Vector) = v.map(_ * lambda)
 
-    def dot(v1: Vector, v2: Vector) = 
+    def dot(v1: Vector, v2: Vector) = v1.zip(v2).map(_ * _).sum 
 
 }
 
