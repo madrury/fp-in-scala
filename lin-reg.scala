@@ -54,9 +54,13 @@ object LinAlg {
 
     def matrixMultiply(X: Matrix, Y: Matrix): Matrix = {
         //var P = Array.tabulate(X.nRow, Y.nCol)( (x, y) => 0.0 )
-        for(Xrow <- X) yield
-            for(Ycol <- transpose(Y)) yield
+        for (Xrow <- X) yield
+            for (Ycol <- transpose(Y)) yield
                 dot(Xrow, Ycol)
+    }
+
+    def matrixVectorMultiply(X: Matrix, y: Point): Point = {
+        for(Xrow <- X) yield dot(Xrow, y)
     }
 
 }
@@ -122,7 +126,7 @@ object Regression {
         }
 
         def gradient(beta: Point): Point = {
-            Array(1, 1)
+            LinAlg.matrixVectorMultiply(LinAlg.transpose(X), residuals(beta))
         }
 
         def function(beta: Point): Double = {
@@ -135,17 +139,18 @@ object Regression {
 
 
 def main(args: Array[String]): Unit = {
-    import scala.runtime.ScalaRunTime._
-    val X = Array(Array(1.0, 2.0), Array(3.0, 4.0))
 
-    
+    import scala.runtime.ScalaRunTime._
     def printArray[A](a: Array[A]): Unit = println(stringOf(a))
 
-    printArray(LinAlg.matrixMultiply(X, X))
-    printArray(LinAlg.matrixMultiply(X, LinAlg.transpose(X)))
+    //printArray(LinAlg.matrixMultiply(X, X))
+    //printArray(LinAlg.matrixMultiply(X, LinAlg.transpose(X)))
+    val X = Array(Array(1.0, 1.0), Array(1.0, 2.0), Array(1.0, 3.0))
+    val y = Array(2.0, 3.0, 4.0)
+
+    val beta = Regression.fit(X, y, LossFunctionName.Gaussian, .000001, .01)
+    printArray(beta)
 
 }
 
 }
-
-
