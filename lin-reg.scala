@@ -24,7 +24,7 @@ case class LossFunction(function: Point => Double, gradient: Point => Point)
 /* An enumeration of supported loss functions. */
 object LossFunctionName extends Enumeration {
     type LossFunctionName = Value
-    val Gaussian = Value
+    val Gaussian, Binomial = Value
 }
 
 /*
@@ -108,6 +108,7 @@ object Regression {
     /* Construct a loss function of a given type given some data. */
     def makeLossFunction(X: Matrix, y: Point, lf: LossFunctionName) = lf match {
         case LossFunctionName.Gaussian => makeLossFunctionGaussian(X, y)
+        case LossFunctionName.Binomial => makeLossFunctionBinomial(X, y)
     }
 
     /* Construct a gaussian loss function for linear regression.
@@ -124,6 +125,22 @@ object Regression {
             LinAlg.matrixVectorMultiply(LinAlg.transpose(X), residuals(beta))
         def function(beta: Point): Double =
             residuals(beta).map( (x: Double) => x*x ).sum
+        LossFunction(function, gradient)
+    }
+
+    /* Construct a binomial loss function for logistic regression.
+     *   function: Binomial deviance.
+     *   gradient: The transpose of the design matrix times the residuals.
+     */
+    def makeLossFunctionBinomial(X: Matrix, y: Point) = {
+        def logit(x: Double): Double = 1 / (1 + math.exp(-x))
+        def linPred(beta: Point): Point = LinAlg.matrixVectorMultiply(X, beta)
+        def p(beta: Point): Point = linPred(beta).map(logit)
+        def gradient(beta: Point): Point =
+            LinAlg.matrixVectorMultiply(LinAlg.transpose(X), LinAlg.subtract(p(beta), y))
+        def function(beta: Point): Double =
+            LinAlg.dot(y, linPred(beta)) - 
+                linPred(beta).map((x: Double) => math.log(1 + math.exp(x))).sum
         LossFunction(function, gradient)
     }
 
