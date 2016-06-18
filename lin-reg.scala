@@ -156,11 +156,42 @@ def main(args: Array[String]): Unit = {
         val X = Array(Array(1.0, 1.0, 1.0), Array(1.0, 2.0, 2.0), Array(1.0, 3.0, 2.0))
         val y = Array(2.0, 3.0, 4.0)
 
-        val beta = Regression.fit(X, y, LossFunctionName.Gaussian, .00000001, .01)
+        val beta = Regression.fit(X, y, LossFunctionName.Gaussian, .001, .01)
+        printArray(beta)
+    }
+
+    /* Each observation repeated with opposite observed response.  Estimated
+     * parameters should be zero.
+     */
+    def fitLogisticRegression: Unit = {
+        val X = Array(Array(1.0, 1.0, 1.0),
+                      Array(1.0, 1.0, 1.0),
+                      Array(1.0, 2.0, 2.0),
+                      Array(1.0, 2.0, 2.0),
+                      Array(1.0, 3.0, 2.0),
+                      Array(1.0, 3.0, 2.0))
+        val y = Array(0.0, 1.0, 0.0, 1.0, 0.0, 1.0)
+
+        val beta = Regression.fit(X, y, LossFunctionName.Binomial, .0001, .01)
+        printArray(beta)
+    }
+
+    /* Simple example from wikipedia. */
+    def fitLogisticExample: Unit = {
+        val X = Array(Array(1, 0.50), Array(1, 0.75), Array(1, 1.00), Array(1, 1.25),
+                      Array(1, 1.50), Array(1, 1.75), Array(1, 1.75), Array(1, 2.00),
+                      Array(1, 2.25), Array(1, 2.50), Array(1, 2.75), Array(1, 3.00),
+                      Array(1, 3.25), Array(1, 3.50), Array(1, 4.00), Array(1, 4.25),
+                      Array(1, 4.50), Array(1, 4.75), Array(1, 5.00), Array(1, 5.50))
+        val y = Array(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
+                      0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        val beta = Regression.fit(X, y, LossFunctionName.Binomial, .00000001, .01)
         printArray(beta)
     }
 
     fitLinearRegression
+    fitLogisticRegression
+    fitLogisticExample
 
 }
 
