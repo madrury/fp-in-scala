@@ -1,10 +1,10 @@
 /*
  * An implementation of regression (fit by gradient descent) in functional style.
  *
- * The main idea in this implementation is to generate a stream of data from
- * gradient descent, and then lazily select the first element of this stream
+ * The main idea in this implementation is to lazily generate a stream of data
+ * using gradient descent, and then select the first element of this stream
  * satisfying a convergence criterion.  The stream contains tuples (x, f(x)),
- * with each subsequent element of the stream calculated form teh prior by
+ * with each subsequent element of the stream calculated form the prior by
  * updating one gradient descent iteration.
  */
 object RegressionApp {
@@ -19,10 +19,7 @@ case class GradientDescentIteration(point: Point, value: Double)
 /* A loss function to be minimized.  We need both the function itself to test
  * for convergence, and the functions gradient to perform the update.
  */
-case class LossFunction(
-    function: Point => Double,
-    gradient: Point => Point
-)
+case class LossFunction(function: Point => Double, gradient: Point => Point)
 
 /* An enumeration of supported loss functions. */
 object LossFunctionName extends Enumeration {
@@ -44,7 +41,7 @@ object LinAlg {
         v1.zip(v2).map { case (x: Double, y: Double) => x - y }
     def add(v1: Point, v2: Point): Point =
         v1.zip(v2).map { case (x: Double, y: Double) => x + y }
-    def scalarMult(lambda: Double, v: Point): Point =
+    def scalarMultiply(lambda: Double, v: Point): Point =
         v.map( (x: Double) => x * lambda )
 
     def dot(v1: Point, v2: Point): Double =
@@ -74,8 +71,9 @@ object Regression {
     def fit(X: Matrix, y: Point, lf: LossFunctionName,
             tolerance: Double, learningRate: Double) = {
         val zeros = LinAlg.zeros(LinAlg.nCol(X))
-        select(descend(learningRate, zeros, descender(X, y, lf)))(
-               tolerance, _.value, _.point)
+        val lossFunction = makeLossFunction(X, y, lf)
+        val descentStream = descend(learningRate, zeros, lossFunction)
+        select(descentStream)(tolerance, _.value, _.point)
     }
 
     /*
@@ -102,36 +100,30 @@ object Regression {
 
         GradientDescentIteration(x0, lf.function(x0)) #::
             descend(learningRate,
-                    LinAlg.subtract(x0, LinAlg.scalarMult(learningRate,
-                                                          lf.gradient(x0))),
+                    LinAlg.subtract(x0, LinAlg.scalarMultiply(learningRate, lf.gradient(x0))),
                     lf)
 
     }
 
     /* Construct a loss function of a given type given some data. */
-    def descender(X: Matrix, y: Point, lf: LossFunctionName) = lf match {
+    def makeLossFunction(X: Matrix, y: Point, lf: LossFunctionName) = lf match {
         case LossFunctionName.Gaussian => makeLossFunctionGaussian(X, y)
     }
 
     /* Construct a gaussian loss function for linear regression.
-     *   function: sum of squared residuals.
-     *   gradient: residuals.
+     *   function: Sum of squared residuals.
+     *   gradient: The transpose of the design matrix times the residuals.
      */
-
     def makeLossFunctionGaussian(X: Matrix, y: Point) = {
         def residuals(beta: Point): Point = {
             val predsResp = X.zip(y).map {
                 case (row, resp) => (LinAlg.dot(row, beta), resp) }
             predsResp.map { case (pred, resp) => (pred - resp) }
         }
-
-        def gradient(beta: Point): Point = {
+        def gradient(beta: Point): Point =
             LinAlg.matrixVectorMultiply(LinAlg.transpose(X), residuals(beta))
-        }
-
-        def function(beta: Point): Double = {
+        def function(beta: Point): Double =
             residuals(beta).map( (x: Double) => x*x ).sum
-        }
         LossFunction(function, gradient)
     }
 
@@ -143,13 +135,15 @@ def main(args: Array[String]): Unit = {
     import scala.runtime.ScalaRunTime._
     def printArray[A](a: Array[A]): Unit = println(stringOf(a))
 
-    //printArray(LinAlg.matrixMultiply(X, X))
-    //printArray(LinAlg.matrixMultiply(X, LinAlg.transpose(X)))
-    val X = Array(Array(1.0, 1.0), Array(1.0, 2.0), Array(1.0, 3.0))
-    val y = Array(2.0, 3.0, 4.0)
+    def fitLinearRegression: Unit = {
+        val X = Array(Array(1.0, 1.0, 1.0), Array(1.0, 2.0, 2.0), Array(1.0, 3.0, 2.0))
+        val y = Array(2.0, 3.0, 4.0)
 
-    val beta = Regression.fit(X, y, LossFunctionName.Gaussian, .000001, .01)
-    printArray(beta)
+        val beta = Regression.fit(X, y, LossFunctionName.Gaussian, .00000001, .01)
+        printArray(beta)
+    }
+
+    fitLinearRegression
 
 }
 
