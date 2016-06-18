@@ -156,7 +156,20 @@ def main(args: Array[String]): Unit = {
         val X = Array(Array(1.0, 1.0, 1.0), Array(1.0, 2.0, 2.0), Array(1.0, 3.0, 2.0))
         val y = Array(2.0, 3.0, 4.0)
 
-        val beta = Regression.fit(X, y, LossFunctionName.Gaussian, .001, .01)
+        val beta = Regression.fit(X, y, LossFunctionName.Gaussian, .00001, .01)
+        printArray(beta)
+    }
+
+    /* Simple example from wikipedia. */
+    def fitLinearExample: Unit = {
+        val X = Array(Array(1, 1.47), Array(1, 1.50), Array(1, 1.52), Array(1, 1.55),
+                      Array(1, 1.57), Array(1, 1.60), Array(1, 1.63), Array(1, 1.65),
+                      Array(1, 1.68), Array(1, 1.70), Array(1, 1.73), Array(1, 1.75),
+                      Array(1, 1.78), Array(1, 1.80), Array(1, 1.83))
+        val y = Array(52.21, 53.12, 54.48, 55.84, 57.20, 58.57, 59.93, 61.29, 63.11,
+                      64.47, 66.28, 68.10, 69.92, 72.19, 74.46)
+
+        val beta = Regression.fit(X, y, LossFunctionName.Gaussian, .00001, .01)
         printArray(beta)
     }
 
@@ -172,7 +185,7 @@ def main(args: Array[String]): Unit = {
                       Array(1.0, 3.0, 2.0))
         val y = Array(0.0, 1.0, 0.0, 1.0, 0.0, 1.0)
 
-        val beta = Regression.fit(X, y, LossFunctionName.Binomial, .0001, .01)
+        val beta = Regression.fit(X, y, LossFunctionName.Binomial, .00001, .01)
         printArray(beta)
     }
 
@@ -185,11 +198,12 @@ def main(args: Array[String]): Unit = {
                       Array(1, 4.50), Array(1, 4.75), Array(1, 5.00), Array(1, 5.50))
         val y = Array(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
                       0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-        val beta = Regression.fit(X, y, LossFunctionName.Binomial, .00000001, .01)
+        val beta = Regression.fit(X, y, LossFunctionName.Binomial, .00001, .01)
         printArray(beta)
     }
 
     fitLinearRegression
+    fitLinearExample
     fitLogisticRegression
     fitLogisticExample
 
